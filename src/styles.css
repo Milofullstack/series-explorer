@@ -64,7 +64,6 @@ h1 {
 }
 
 .show-card {
-  overflow: hidden;
   border: 1px solid #e2e5eb;
   border-radius: 0.75rem;
   background: #fff;
@@ -80,6 +79,7 @@ h1 {
 }
 
 .show-card__content {
+  overflow: hidden;
   padding: 1rem;
 }
 
