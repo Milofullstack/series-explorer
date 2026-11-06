@@ -14,7 +14,6 @@ let state = {
 // Aquí conectaremos la petición a TVmaze, el estado y el renderizado.
 async function fetchShows() {
   try {
-    state.requestStatus = "loading";
     const response = await fetch(`${API_URL}`);
     if (!response.ok) {
       throw new Error("Error conecting with the API");
@@ -28,7 +27,7 @@ async function fetchShows() {
     state.requestStatus = "error";
     state.error = error.message;
   }
-}
+ }
 
 function renderShows() {
   const shows = state.shows;
@@ -49,8 +48,33 @@ function renderShows() {
   container.innerHTML = html;
 }
 
+function renderStatus() {
+  const container = document.getElementById("status-message");
+  container.innerHTML = "";
+
+  if (state.requestStatus === "success") {
+    container.innerHTML = '';
+    return;
+  }
+  if (state.requestStatus === "error") {
+    container.innerHTML = state.error;
+    return;
+  }
+  if (state.requestStatus === "loading") {
+    container.innerHTML = "Preparando el catálogo…";
+    return;
+  }
+}
+
 async function main() {
-  await fetchShows();
-  renderShows();
+    state.requestStatus = "loading";
+    renderStatus();
+    await fetchShows();
+    renderStatus();
+    if(state.requestStatus !== "success"){
+        return
+    }
+    renderShows();
+
 }
 main();
