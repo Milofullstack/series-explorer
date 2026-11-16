@@ -86,30 +86,42 @@ function renderStatus() {
 }
 
 function addEvents() {
-  const container = document.getElementById("genre-selector");
+  const genreSelector = document.getElementById("genre-selector");
+  const inputSearch = document.getElementById("search-input");
 
-  container.addEventListener("change", (e) => {
+  genreSelector.addEventListener("change", (e) => {
     state.selectedGenre = e.target.value;
     render();
   });
-  
-}
+  inputSearch.addEventListener("input", (e) =>{
+    const search = e.target.value ;
+    state.search = search ;
+    render();
+  });
+
+  };
 
 function render(){
-  const filteredShows = filteredShowsByGenre()
-  renderShows(filteredShows);
+  const shows = filteredShows()
+  renderShows(shows);
 }
 
-function filteredShowsByGenre() {
+function filteredShows() {
   let shows = state.shows;
+  if (state.search !== ""){
+    shows = shows.filter((show) =>{
+      return show.name.toLowerCase().includes(state.search.toLowerCase().trim());
+    });
+  }
+
   if (state.selectedGenre === "all") {
     return shows;
   }
-
   const filteredShows = shows.filter((show) => {
-    return show.genres.includes(state.selectedGenre);
+  return show.genres.includes(state.selectedGenre);
   });
-  console.log(filteredShows)
+
+
   return filteredShows;
 }
 
