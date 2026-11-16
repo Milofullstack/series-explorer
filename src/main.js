@@ -27,10 +27,29 @@ async function fetchShows() {
     state.requestStatus = "error";
     state.error = error.message;
   }
- }
+}
 
-function renderShows() {
+function getUniqueGenres() {
   const shows = state.shows;
+  const genres = shows.flatMap((show) => show.genres);
+  const uniqueGenres = new Set(genres);
+  return uniqueGenres;
+}
+
+function renderGenres() {
+  const container = document.getElementById("genre-selector");
+  const uniqueGenres = getUniqueGenres();
+
+  for (let genre of uniqueGenres) {
+    const option = document.createElement("option");
+    option.value = genre;
+    option.textContent = genre;
+
+    container.append(option);
+  }
+}
+
+function renderShows(shows) {
   const container = document.getElementById("shows-grid");
   container.innerHTML = "";
   let html = "";
@@ -53,7 +72,7 @@ function renderStatus() {
   container.innerHTML = "";
 
   if (state.requestStatus === "success") {
-    container.innerHTML = '';
+    container.innerHTML = "";
     return;
   }
   if (state.requestStatus === "error") {
@@ -66,15 +85,44 @@ function renderStatus() {
   }
 }
 
-async function main() {
-    state.requestStatus = "loading";
-    renderStatus();
-    await fetchShows();
-    renderStatus();
-    if(state.requestStatus !== "success"){
-        return
-    }
-    renderShows();
+function addEvents() {
+  const container = document.getElementById("genre-selector");
 
+  container.addEventListener("change", (e) => {
+    state.selectedGenre = e.target.value;
+    render();
+  });
+  
+}
+
+function render(){
+  const filteredShows = filteredShowsByGenre()
+  renderShows(filteredShows);
+}
+
+function filteredShowsByGenre() {
+  let shows = state.shows;
+  if (state.selectedGenre === "all") {
+    return shows;
+  }
+
+  const filteredShows = shows.filter((show) => {
+    return show.genres.includes(state.selectedGenre);
+  });
+  console.log(filteredShows)
+  return filteredShows;
+}
+
+async function main() {
+  state.requestStatus = "loading";
+  renderStatus();
+  await fetchShows();
+  renderStatus();
+  if (state.requestStatus !== "success") {
+    return;
+  }
+  renderGenres();
+  addEvents();
+  render()
 }
 main();
