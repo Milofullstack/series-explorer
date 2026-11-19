@@ -35,6 +35,12 @@ function getUniqueGenres() {
   const uniqueGenres = new Set(genres);
   return uniqueGenres;
 }
+function getUniqueStatus (){
+  const shows = state.shows;
+  const showStatus = shows.map(show => show.status);
+  const uniqueStatus = new Set(showStatus);
+  return uniqueStatus;
+}
 
 function renderGenres() {
   const container = document.getElementById("genre-selector");
@@ -85,44 +91,68 @@ function renderStatus() {
   }
 }
 
+function renderShowStatus(){
+  const container = document.getElementById("status-selector");
+  const uniqueShowStatus = getUniqueStatus();
+
+  for(let showStatus of uniqueShowStatus){
+    const option = document.createElement("option");
+    option.value = showStatus;
+    option.textContent = showStatus;
+    container.append(option);
+  }
+}
+
 function addEvents() {
   const genreSelector = document.getElementById("genre-selector");
   const inputSearch = document.getElementById("search-input");
+  const statusSelector = document.getElementById("status-selector");
 
   genreSelector.addEventListener("change", (e) => {
     state.selectedGenre = e.target.value;
     render();
   });
-  inputSearch.addEventListener("input", (e) =>{
-    const search = e.target.value ;
-    state.search = search ;
+  inputSearch.addEventListener("input", (e) => {
+    const search = e.target.value;
+    state.search = search;
     render();
   });
+  statusSelector.addEventListener("change", (e) => {
+    state.showStatus = e.target.value
+    render();
+  });
+}
 
-  };
-
-function render(){
-  const shows = filteredShows()
+function render() {
+  const shows = filteredShows();
   renderShows(shows);
 }
 
 function filteredShows() {
+
   let shows = state.shows;
-  if (state.search !== ""){
-    shows = shows.filter((show) =>{
-      return show.name.toLowerCase().includes(state.search.toLowerCase().trim());
+
+  if (state.search !== "") {
+    shows = shows.filter((show) => {
+      return show.name
+        .toLowerCase()
+        .includes(state.search.toLowerCase().trim());
     });
   }
 
-  if (state.selectedGenre === "all") {
-    return shows;
+  if (state.selectedGenre !== "all") {
+    shows = shows.filter((show) => {
+      return show.genres.includes(state.selectedGenre);
+    });
   }
-  const filteredShows = shows.filter((show) => {
-  return show.genres.includes(state.selectedGenre);
-  });
 
+  if (state.showStatus !== "all") {
+    shows = shows.filter((show) => {
+      return show.status === state.showStatus;
+    });
+  }
 
-  return filteredShows;
+  return shows;
 }
 
 async function main() {
@@ -134,7 +164,8 @@ async function main() {
     return;
   }
   renderGenres();
+  renderShowStatus()
   addEvents();
-  render()
+  render();
 }
 main();
